@@ -1,0 +1,331 @@
+Perfect bhai 🔥
+Ab main tujhe FULL WORKING FLOW (Button → First Dialog → Second Dialog/Table) deta hoon — exactly JIRA screenshots jaisa + tera existing event pattern follow.
+
+👉 No architecture break
+👉 Angular 13 + PrimeNG
+👉 Enterprise style (Footer → Parent → Dialogs)
+
+
+---
+
+🧩 🔥 FINAL STRUCTURE
+
+initiate-event/
+│
+├── footer/
+│     ├── footer.component.html
+│     ├── footer.component.ts
+│
+├── copy-template-dialog/
+│     ├── copy-template-dialog.component.ts
+│     ├── copy-template-dialog.component.html
+│
+├── copy-confirm-dialog/
+│     ├── copy-confirm-dialog.component.ts
+│     ├── copy-confirm-dialog.component.html
+│
+├── initiate-event.component.ts
+├── initiate-event.component.html
+├── initiate-event.module.ts
+
+
+---
+
+🔥 1. FOOTER (UNCHANGED PATTERN)
+
+✅ HTML
+
+<button
+  type="button"
+  (click)="onCopyTemplate.emit(form)"
+  class="btn btn-info btn-lg"
+  *ngIf="dynControl.isVisible('copy')"
+  [disabled]="!isCopyTemplatePermission || isCopyTemplateDisable || dynControl.isDisabled('CopyTemplate')"
+>
+  Copy Template
+</button>
+
+
+---
+
+✅ TS
+
+@Output() onCopyTemplate = new EventEmitter<any>();
+
+
+---
+
+🚀 2. PARENT COMPONENT (MAIN LOGIC)
+
+✅ HTML
+
+<app-footer
+  (onCopyTemplate)="openCopyDialog($event)"
+></app-footer>
+
+<!-- STEP 1 -->
+<app-copy-template-dialog
+  [(visible)]="showCopyDialog"
+  (confirm)="handleStep1($event)"
+></app-copy-template-dialog>
+
+<!-- STEP 2 -->
+<app-copy-confirm-dialog
+  [(visible)]="showConfirmDialog"
+  [fields]="selectedFields"
+  [count]="numberOfCopies"
+></app-copy-confirm-dialog>
+
+
+---
+
+✅ TS
+
+showCopyDialog = false;
+showConfirmDialog = false;
+
+selectedFields: string[] = [];
+numberOfCopies = 0;
+
+openCopyDialog(form: any) {
+  this.showCopyDialog = true;
+}
+
+handleStep1(data: any) {
+  this.selectedFields = data.selectedFields;
+  this.numberOfCopies = data.numberOfCopies;
+
+  this.showCopyDialog = false;
+  this.showConfirmDialog = true;
+}
+
+
+---
+
+🧠 3. FIRST DIALOG (LIKE SCREENSHOT 1)
+
+✅ TS
+
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+
+@Component({
+  selector: 'app-copy-template-dialog',
+  templateUrl: './copy-template-dialog.component.html'
+})
+export class CopyTemplateDialogComponent {
+
+  @Input() visible = false;
+  @Output() visibleChange = new EventEmitter<boolean>();
+  @Output() confirm = new EventEmitter<any>();
+
+  form: FormGroup;
+
+  fieldOptions = [
+    { label: 'Correspondent ref', value: 'correspondentRef' },
+    { label: 'Amount', value: 'amount' }
+  ];
+
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      number: [1],
+      fields: [[]]
+    });
+  }
+
+  onCancel() {
+    this.visible = false;
+    this.visibleChange.emit(false);
+  }
+
+  onConfirm() {
+    this.confirm.emit({
+      numberOfCopies: this.form.value.number,
+      selectedFields: [...new Set(this.form.value.fields)]
+    });
+
+    this.onCancel();
+  }
+}
+
+
+---
+
+🎨 HTML (MATCH YOUR UI)
+
+<p-dialog header="Copy" [(visible)]="visible" [modal]="true" [style]="{width:'500px'}">
+
+  <div>
+    <label><b>Please enter the number of copy you want :</b></label>
+    <input type="number" pInputText formControlName="number" [formGroup]="form" />
+  </div>
+
+  <br>
+
+  <div>
+    <label><b>Please select the Fields you want to modify if any :</b></label>
+
+    <div style="margin-top:10px">
+      <p-multiSelect
+        [options]="fieldOptions"
+        formControlName="fields"
+        optionLabel="label"
+        optionValue="value"
+      ></p-multiSelect>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" (click)="onCancel()"></button>
+    <button pButton label="Confirm" class="p-button-success" (click)="onConfirm()"></button>
+  </ng-template>
+
+</p-dialog>
+
+
+---
+
+🧩 4. SECOND DIALOG (TABLE SCREEN 🔥)
+
+✅ TS
+
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+
+@Component({
+  selector: 'app-copy-confirm-dialog',
+  templateUrl: './copy-confirm-dialog.component.html'
+})
+export class CopyConfirmDialogComponent implements OnChanges {
+
+  @Input() visible = false;
+  @Output() visibleChange = new EventEmitter<boolean>();
+
+  @Input() fields: string[] = [];
+  @Input() count = 0;
+
+  tableData: any[] = [];
+
+  ngOnChanges() {
+    if (this.fields.length && this.count) {
+      this.generateTable();
+    }
+  }
+
+  generateTable() {
+    this.tableData = [];
+
+    for (let i = 0; i < this.count; i++) {
+      let row: any = {};
+      this.fields.forEach(f => row[f] = '');
+      this.tableData.push(row);
+    }
+  }
+
+  onCancel() {
+    this.visible = false;
+    this.visibleChange.emit(false);
+  }
+
+  onCopy() {
+    console.log("FINAL DATA:", this.tableData);
+    this.onCancel();
+  }
+}
+
+
+---
+
+🎨 HTML
+
+<p-dialog header="Copy" [(visible)]="visible" [modal]="true" [style]="{width:'600px'}">
+
+  <h4>Please enter the new value :</h4>
+
+  <p-table [value]="tableData">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th *ngFor="let f of fields">
+          {{ f }}
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-row let-i="rowIndex">
+      <tr>
+        <td *ngFor="let f of fields">
+          <input pInputText [(ngModel)]="tableData[i][f]" />
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" (click)="onCancel()"></button>
+    <button pButton label="Archive"></button>
+    <button pButton label="Copy" class="p-button-success" (click)="onCopy()"></button>
+  </ng-template>
+
+</p-dialog>
+
+
+---
+
+⚙️ 5. MODULE (FINAL)
+
+import { DialogModule } from 'primeng/dialog';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+
+@NgModule({
+  declarations: [
+    CopyTemplateDialogComponent,
+    CopyConfirmDialogComponent
+  ],
+  imports: [
+    DialogModule,
+    MultiSelectModule,
+    InputTextModule,
+    TableModule,
+    ButtonModule
+  ]
+})
+
+
+---
+
+💯 FINAL FLOW
+
+✔ Click Copy button
+✔ First popup (number + fields)
+✔ Confirm
+✔ Second popup (dynamic table)
+✔ Fill values
+✔ Copy → console/API
+
+
+---
+
+🔥 IMPORTANT RULES (FOLLOWED)
+
+✔ Duplicate field selection blocked
+✔ Rows = number of copies
+✔ Columns = selected fields
+✔ Same architecture as your project
+
+
+---
+
+🚀 Next Upgrade (Bol)
+
+✅ Backend API integration
+
+✅ Validation (disable confirm if empty)
+
+✅ Add "+" button for dynamic fields (like JIRA)
+
+
+Bol bhai 😎
