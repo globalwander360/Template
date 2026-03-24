@@ -1,0 +1,199 @@
+Samajh gaya bhai 👍
+Abhi hum sirf 2 cheez banayenge:
+
+1. ✅ Button (parent me)
+
+
+2. ✅ First Dialog (copy-template-dialog)
+
+
+
+👉 Second dialog abhi skip.
+
+
+---
+
+✅ 1. BUTTON (Parent Component)
+
+HTML
+
+<button
+  pButton
+  label="Copy Template"
+  icon="pi pi-copy"
+  class="p-button-info"
+  (click)="openCopyDialog()"
+></button>
+
+<app-copy-template-dialog
+  [(visible)]="showCopyDialog"
+  (confirm)="handleConfirm($event)"
+></app-copy-template-dialog>
+
+
+---
+
+TS
+
+showCopyDialog = false;
+
+openCopyDialog() {
+  this.showCopyDialog = true;
+}
+
+handleConfirm(event: any) {
+  console.log("Step 1 Data:", event);
+
+  // next step yaha handle karenge later
+  this.showCopyDialog = false;
+}
+
+
+---
+
+🧩 2. copy-template-dialog Component
+
+
+---
+
+✅ TS (copy-template-dialog.component.ts)
+
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+
+@Component({
+  selector: 'app-copy-template-dialog',
+  templateUrl: './copy-template-dialog.component.html',
+  styleUrls: ['./copy-template-dialog.component.scss']
+})
+export class CopyTemplateDialogComponent {
+
+  @Input() visible: boolean = false;
+  @Output() visibleChange = new EventEmitter<boolean>();
+  @Output() confirm = new EventEmitter<any>();
+
+  form: FormGroup;
+
+  fieldOptions = [
+    { label: 'Correspondent Ref', value: 'correspondentRef' },
+    { label: 'Amount', value: 'amount' },
+    { label: 'Date', value: 'date' }
+  ];
+
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      number: [1],
+      fields: [[]]
+    });
+  }
+
+  onCancel() {
+    this.visible = false;
+    this.visibleChange.emit(false);
+  }
+
+  onConfirm() {
+    const data = {
+      number: this.form.value.number,
+      fields: [...new Set(this.form.value.fields)]
+    };
+
+    this.confirm.emit(data);
+  }
+}
+
+
+---
+
+🎨 HTML (copy-template-dialog.component.html)
+
+<p-dialog
+  header="Copy"
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+>
+
+  <form [formGroup]="form">
+
+    <div class="p-field mb-3">
+      <label>Number of Copy</label>
+      <input
+        pInputText
+        type="number"
+        formControlName="number"
+        class="w-full"
+      />
+    </div>
+
+    <div class="p-field mb-3">
+      <label>Select Fields</label>
+      <p-multiSelect
+        [options]="fieldOptions"
+        formControlName="fields"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select fields"
+        class="w-full"
+      >
+      </p-multiSelect>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      label="Cancel"
+      class="p-button-text"
+      (click)="onCancel()"
+    ></button>
+
+    <button
+      pButton
+      label="Confirm"
+      class="p-button-success"
+      (click)="onConfirm()"
+    ></button>
+  </ng-template>
+
+</p-dialog>
+
+
+---
+
+🎨 SCSS (optional clean UI)
+
+:host ::ng-deep .p-dialog {
+  border-radius: 10px;
+}
+
+.p-field label {
+  font-weight: 600;
+}
+
+
+---
+
+⚠️ Required Modules
+
+import { DialogModule } from 'primeng/dialog';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+
+---
+
+🔥 Final Flow
+
+✔ Button click
+✔ Dialog open
+✔ Enter number + select fields
+✔ Confirm → console me data
+
+
+---
+
+        Agar next step chahiye (table wala second dialog), bol dena bhai 😎
