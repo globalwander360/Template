@@ -1,3 +1,256 @@
+Perfect 👍 — here is your FULL UPDATED SOURCE CODE with:
+
+✅ Horizontal + Vertical scroll
+
+✅ Proper table layout
+
+✅ Handles 20+ dynamic fields
+
+✅ Small action column
+
+✅ Clean UI
+
+
+
+---
+
+✅ 1. copy-confirmation-dialog.component.html
+
+<p-dialog header="Enter Updated Values"
+          [(visible)]="visible"
+          [modal]="true"
+          [style]="{width: '90vw'}"
+          [contentStyle]="{overflow: 'hidden'}">
+
+  <!-- HEADER -->
+  <div class="dialog-header">
+    <button pButton icon="pi pi-arrow-left"
+            class="p-button-rounded p-button-text"
+            (click)="goBack()"></button>
+    <h3>Enter Updated Values</h3>
+  </div>
+
+  <!-- SCROLL WRAPPER -->
+  <div class="table-scroll-wrapper">
+
+    <p-table 
+      [value]="tableData"
+      [scrollable]="true"
+      scrollHeight="400px"
+      [resizableColumns]="true"
+      columnResizeMode="expand"
+      styleClass="custom-table">
+
+      <!-- HEADER -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="fixed-col">Request Name</th>
+
+          <th *ngFor="let field of selectedFields" class="dynamic-col">
+            {{ field }}
+          </th>
+
+          <th class="action-col">Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- BODY -->
+      <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+        <tr>
+          <td class="fixed-col">{{ row.requestName }}</td>
+
+          <td *ngFor="let field of selectedFields" class="dynamic-col">
+            <input pInputText [(ngModel)]="tableData[rowIndex][field]" />
+          </td>
+
+          <td class="action-col">
+            <button pButton icon="pi pi-trash"
+                    class="p-button-danger p-button-sm"
+                    (click)="deleteRequest(rowIndex)"
+                    [disabled]="tableData.length <= 1">
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+
+  </div>
+
+  <!-- FOOTER -->
+  <ng-template pTemplate="footer">
+    <button pButton label="Cancel" (click)="close()"></button>
+    <button pButton label="Copy" class="p-button-success" (click)="onCopy()"></button>
+  </ng-template>
+
+</p-dialog>
+
+
+---
+
+✅ 2. copy-confirmation-dialog.component.scss
+
+/* Wrapper for horizontal scroll */
+.table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;   /* LEFT-RIGHT SCROLL */
+  overflow-y: hidden;
+}
+
+/* Force table width to expand based on content */
+::ng-deep .custom-table .p-datatable-table {
+  min-width: max-content;
+}
+
+/* Fixed first column */
+.fixed-col {
+  min-width: 180px;
+  max-width: 220px;
+  white-space: nowrap;
+}
+
+/* Dynamic columns */
+.dynamic-col {
+  min-width: 150px;
+  max-width: 200px;
+}
+
+/* Action column small */
+.action-col {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+}
+
+/* Input full width */
+::ng-deep .custom-table input {
+  width: 100%;
+}
+
+/* Prevent header breaking */
+::ng-deep .p-datatable-thead > tr > th {
+  white-space: nowrap;
+}
+
+/* Optional smooth scrollbar */
+.table-scroll-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+
+---
+
+✅ 3. copy-confirmation-dialog.component.ts
+
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+
+@Component({
+  selector: 'app-copy-confirmation-dialog',
+  templateUrl: './copy-confirmation-dialog.component.html',
+  styleUrls: ['./copy-confirmation-dialog.component.scss']
+})
+export class CopyConfirmationDialogComponent implements OnChanges {
+
+  @Input() visible = false;
+  @Output() visibleChange = new EventEmitter<boolean>();
+  @Output() back = new EventEmitter<void>();
+
+  @Input() selectedFields: string[] = [];
+  @Input() copyCount = 0;
+
+  tableData: any[] = [];
+
+  ngOnChanges(): void {
+    if (this.visible) {
+      this.initializeTable();
+    }
+  }
+
+  initializeTable(): void {
+    this.tableData = Array.from({ length: this.copyCount }, (_, index) => {
+      const row: any = {
+        requestName: `Create Request ${index + 1}`
+      };
+
+      this.selectedFields.forEach(field => {
+        row[field] = '';
+      });
+
+      return row;
+    });
+  }
+
+  goBack(): void {
+    this.back.emit();
+  }
+
+  onCopy(): void {
+    console.log('Final payload:', this.tableData);
+    this.close();
+  }
+
+  deleteRequest(index: number): void {
+    if (this.tableData.length > 1) {
+      this.tableData.splice(index, 1);
+
+      this.tableData.forEach((row, i) => {
+        row.requestName = `Create Request ${i + 1}`;
+      });
+    }
+  }
+
+  close(): void {
+    this.visible = false;
+    this.visibleChange.emit(false);
+  }
+}
+
+
+---
+
+✅ FINAL RESULT
+
+🔥 Now your UI will:
+
+Show horizontal scrollbar when many fields selected
+
+Show vertical scrollbar for rows
+
+Keep table structure clean
+
+Maintain small Action column (80px)
+
+Handle 20+ columns easily
+
+Look like a professional production UI
+
+
+
+---
+
+💬 If you want next level
+
+I can help you with:
+
+👉 Sticky first column (Excel-like)
+
+👉 Export to Excel
+
+👉 Backend API integration
+
+👉 Column drag/drop
+
+
+Just say 👍
+
+
+
+
+
+
+
+
 Got it 👍 — this is a UI/UX + table layout issue (PrimeNG p-table).
 You want:
 
